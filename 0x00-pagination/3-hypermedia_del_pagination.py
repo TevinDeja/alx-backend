@@ -4,7 +4,6 @@ Deletion-resilient hypermedia pagination
 """
 
 import csv
-import math
 from typing import List, Dict, Any
 
 
@@ -50,32 +49,25 @@ class Server:
         Returns:
             Dict[str, Any]: A dictionary containing pagination information.
         """
-        assert index is None or (isinstance(index, int) and index >= 0), "Index must be a non-negative integer or None"
-        
-        indexed_dataset = self.indexed_dataset()
-        data_length = len(indexed_dataset)
+        data = self.indexed_dataset()
+        assert index is not None and index >= 0 and index <= max(data.keys()), \
+            "Index out of range"
 
-        if index is None:
-            index = 0
-        
-        assert index < data_length, "Index out of range"
+        page_data = []
+        data_count = 0
+        next_index = None
 
-        data = []
-        current_index = index
-        for _ in range(page_size):
-            while current_index not in indexed_dataset and current_index < data_length:
-                current_index += 1
-            if current_index < data_length:
-                data.append(indexed_dataset[current_index])
-                current_index += 1
-            if current_index >= data_length:
+        for i, item in data.items():
+            if i >= index and data_count < page_size:
+                page_data.append(item)
+                data_count += 1
+            elif data_count == page_size:
+                next_index = i
                 break
-
-        next_index = current_index
 
         return {
             "index": index,
             "next_index": next_index,
-            "page_size": len(data),
-            "data": data
+            "page_size": len(page_data),
+            "data": page_data
         }
