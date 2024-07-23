@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-This module provides pagination functionality for a dataset of popular baby names.
+pagination functionality for a dataset of popular baby names
 """
-
 import csv
 import math
 from typing import List, Tuple
