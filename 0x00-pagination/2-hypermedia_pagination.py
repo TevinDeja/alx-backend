@@ -55,16 +55,14 @@ class Server:
             return []
         return data[start_index:end_index]
 
-    def get_hyper(self, page: int = 1, page_size: int = 10) -> Dict[str, Any]:
+    def get_hyper(self, page: int = 1, page_size: int = 10) -> Dict:
         """
         Retrieve a page of data along with pagination information.
-
         Args:
             page (int): The page number to retrieve (default is 1).
             page_size (int): The number of items per page (default is 10).
-
         Returns:
-            Dict[str, Any]: A dictionary containing pagination information
+            Dict: A dictionary containing pagination information
         """
         page_data = self.get_page(page, page_size)
         start_index, end_index = index_range(page, page_size)
