@@ -1,46 +1,36 @@
 #!/usr/bin/env python3
-"""MRUCache module"""
-
+"""MRUCache module
+"""
+from collections import OrderedDict
 from base_caching import BaseCaching
 
 
 class MRUCache(BaseCaching):
+    """MRUCache defines a MRU caching system
     """
-    MRUCache defines a MRU caching system
-    """
-
     def __init__(self):
-        """Initialize the cache"""
+        """Initializes the cache
+        """
         super().__init__()
-        self.usage_order = []
+        self.cache_data = OrderedDict()
 
     def put(self, key, item):
+        """Adds an item in the cache
         """
-        Add an item in the cache
-        """
-        if key is not None and item is not None:
-            if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
-                if key not in self.cache_data:
-                    mru_key = self.usage_order.pop()
-                    del self.cache_data[mru_key]
-                    print(f"DISCARD: {mru_key}")
-            
+        if key is None or item is None:
+            return
+        if key not in self.cache_data:
+            if len(self.cache_data) + 1 > BaseCaching.MAX_ITEMS:
+                mru_key, _ = self.cache_data.popitem(False)
+                print("DISCARD:", mru_key)
             self.cache_data[key] = item
-            self._update_usage(key)
+            self.cache_data.move_to_end(key, last=False)
+        else:
+            self.cache_data[key] = item
 
     def get(self, key):
-        """
-        Get an item by key
+        """Retrieves an item by key
         """
         if key is not None and key in self.cache_data:
-            self._update_usage(key)
-            return self.cache_data[key]
-        return None
-
-    def _update_usage(self, key):
-        """
-        Update the usage order of the keys
-        """
-        if key in self.usage_order:
-            self.usage_order.remove(key)
-        self.usage_order.append(key)
+            self.cache_data.move_to_end(key, last=False)
+        return self.cache_data.get(key, None)
