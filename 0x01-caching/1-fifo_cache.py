@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""FIFOCache module"""
-
+"""
+FIFOCache module
+"""
 from base_caching import BaseCaching
 
 
@@ -8,12 +9,6 @@ class FIFOCache(BaseCaching):
     """
     FIFOCache defines a FIFO caching system
     """
-
-    def __init__(self):
-        """Initialize the cache"""
-        super().__init__()
-        self.order = []
-
     def put(self, key, item):
         """
         Add an item in the cache
