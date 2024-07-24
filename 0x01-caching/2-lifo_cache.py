@@ -11,11 +11,11 @@ class LIFOCache(BaseCaching):
     LIFOCache defines a LIFO caching system
     """
     def __init__(self):
-        """
-        Initialize the cache
-        """
-        super().__init__()
-        self.cache_data = OrderedDict()
+      """
+      Initialize the cache
+      """
+      super().__init__()
+      self.cache_data = OrderedDict()
 
     def put(self, key, item):
         """
