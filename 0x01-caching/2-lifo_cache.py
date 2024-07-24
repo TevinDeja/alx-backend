@@ -1,27 +1,23 @@
 #!/usr/bin/env python3
-"""
-LIFOCache module
+"""LIFOCache module
 """
 from collections import OrderedDict
 from base_caching import BaseCaching
 
 
 class LIFOCache(BaseCaching):
-    """
-    LIFOCache defines a LIFO caching system
+    """LIFOCache defines a LIFO caching system
     """
     def __init__(self):
-      """
-      Initialize the cache
-      """
-      super().__init__()
-      self.cache_data = OrderedDict()
+        """Initializes the cache
+        """
+        super().__init__()
+        self.cache_data = OrderedDict()
 
     def put(self, key, item):
+        """Adds an item in the cache
         """
-        Add an item in the cache
-        """
-        if key is None and item is None:
+        if key is None or item is None:
             return
         if key not in self.cache_data:
             if len(self.cache_data) + 1 > BaseCaching.MAX_ITEMS:
@@ -31,7 +27,6 @@ class LIFOCache(BaseCaching):
         self.cache_data.move_to_end(key, last=True)
 
     def get(self, key):
-        """
-        Get an item by key
+        """Retrieves an item by key
         """
         return self.cache_data.get(key, None)
