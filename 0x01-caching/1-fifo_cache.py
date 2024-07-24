@@ -15,9 +15,9 @@ class FIFOCache(BaseCaching):
         self.cache_data = OrderedDict()
 
     def put(self, key, item):
-        """Add an item in the cache
+        """Add an item in the cache.
         """
-        if key is None and item is None:
+        if key is None or item is None:
             return
         self.cache_data[key] = item
         if len(self.cache_data) > BaseCaching.MAX_ITEMS:
