@@ -9,7 +9,7 @@ class FIFOCache(BaseCaching):
     """FIFOCache defines a FIFO caching system
     """
     def __init__(self):
-        """Initialize the cache
+        """Initializes the cache.
         """
         super().__init__()
         self.cache_data = OrderedDict()
