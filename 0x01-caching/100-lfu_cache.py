@@ -1,69 +1,69 @@
 #!/usr/bin/env python3
-"""LFUCache module"""
-
+"""LFUCache module
+"""
+from collections import OrderedDict
 from base_caching import BaseCaching
-from collections import defaultdict
 
 
 class LFUCache(BaseCaching):
+    """LFUCache defines a LFU caching system
     """
-    LFUCache defines a LFU caching system
-    """
-
     def __init__(self):
-        """Initialize the cache"""
+        """Initializes the cache
+        """
         super().__init__()
-        self.frequency = defaultdict(int)
-        self.usage_order = []
+        self.cache_data = OrderedDict()
+        self.keys_freq = []
+
+    def __reorder_items(self, mru_key):
+        """Reorders the items in this cache
+        """
+        max_positions = []
+        mru_freq = 0
+        mru_pos = 0
+        ins_pos = 0
+        for i, key_freq in enumerate(self.keys_freq):
+            if key_freq[0] == mru_key:
+                mru_freq = key_freq[1] + 1
+                mru_pos = i
+                break
+            elif len(max_positions) == 0:
+                max_positions.append(i)
+            elif key_freq[1] < self.keys_freq[max_positions[-1]][1]:
+                max_positions.append(i)
+        max_positions.reverse()
+        for pos in max_positions:
+            if self.keys_freq[pos][1] > mru_freq:
+                break
+            ins_pos = pos
+        self.keys_freq.pop(mru_pos)
+        self.keys_freq.insert(ins_pos, [mru_key, mru_freq])
 
     def put(self, key, item):
+        """Add items in the cache.
         """
-        Add an item in the cache
-        """
-        if key is not None and item is not None:
-            if len(self.cache_data) >= BaseCaching.MAX_ITEMS and key not in self.cache_data:
-                self._discard_lfu()
-            
+        if key is None or item is None:
+            return
+        if key not in self.cache_data:
+            if len(self.cache_data) + 1 > BaseCaching.MAX_ITEMS:
+                lfu_key, _ = self.keys_freq[-1]
+                self.cache_data.pop(lfu_key)
+                self.keys_freq.pop()
+                print("DISCARD:", lfu_key)
             self.cache_data[key] = item
-            self.frequency[key] += 1
-            self._update_usage(key)
+            ins_index = len(self.keys_freq)
+            for i, key_freq in enumerate(self.keys_freq):
+                if key_freq[1] == 0:
+                    ins_index = i
+                    break
+            self.keys_freq.insert(ins_index, [key, 0])
+        else:
+            self.cache_data[key] = item
+            self.__reorder_items(key)
 
     def get(self, key):
-        """
-        Get an item by key
+        """Get an item by key
         """
         if key is not None and key in self.cache_data:
-            self.frequency[key] += 1
-            self._update_usage(key)
-            return self.cache_data[key]
-        return None
-
-    def _discard_lfu(self):
-        """
-        Discard the least frequently used item
-        If there's a tie, use LRU to break it
-        """
-        min_frequency = min(self.frequency.values())
-        lfu_keys = [k for k, v in self.frequency.items() if v == min_frequency]
-        
-        if len(lfu_keys) == 1:
-            lfu_key = lfu_keys[0]
-        else:
-            # If there's a tie, use LRU
-            for key in self.usage_order:
-                if key in lfu_keys:
-                    lfu_key = key
-                    break
-        
-        del self.cache_data[lfu_key]
-        del self.frequency[lfu_key]
-        self.usage_order.remove(lfu_key)
-        print(f"DISCARD: {lfu_key}")
-
-    def _update_usage(self, key):
-        """
-        Update the usage order of the keys
-        """
-        if key in self.usage_order:
-            self.usage_order.remove(key)
-        self.usage_order.append(key)
+            self.__reorder_items(key)
+        return self.cache_data.get(key, None)
